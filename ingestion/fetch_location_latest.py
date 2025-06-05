@@ -16,27 +16,20 @@ API_KEY = os.getenv("API_KEY")
 RAW_DATA_DIR = Path("../data/raw")
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def fetch_openaq_data(city: str, limit: int=100):
-    params = {
-        "city": city,
-        "limit": limit,
-        "sort": "desc",
-        "order_by":"datetime"
-    }
+def fetch_location_latest(location_id: int):
 
     headers = {
         "X-API-KEY": API_KEY
     }
 
     try:
-        logging.info(f"Fetching data for city: {city}")
-        response = requests.get(f"{API_BASE_URL}/measurements", params=params, headers=headers)
+        logging.info(f"Fetching data for location: {location_id}")
+        response = requests.get(f"{API_BASE_URL}/locations/{location_id}/latest", headers=headers)
         response.raise_for_status()
         data = response.json()
 
-        timestamp = datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H%M%SZ")
-        safe_city = city.lower().replace(" ", "_")
-        filename = RAW_DATA_DIR / f"{safe_city}_{timestamp}.json"
+        timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H%M%SZ")
+        filename = RAW_DATA_DIR / f"location_{location_id}_{timestamp}.json"
 
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -50,11 +43,10 @@ def fetch_openaq_data(city: str, limit: int=100):
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch OpenAQ data for a specified city.")
-    parser.add_argument("--city", required=True, help="City name as recognized by OpenAQ (e.g., 'Denver')"
-    )
+    parser.add_argument("--location", required=True, help="Location id as recognized by the OpenAQ API.")
     args = parser.parse_args()
 
-    fetch_openaq_data(city=args.city)
+    fetch_location_latest(location_id=args.location)
 
 if __name__ == "__main__":
     main()
