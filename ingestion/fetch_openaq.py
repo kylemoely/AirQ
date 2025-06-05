@@ -30,7 +30,7 @@ def fetch_openaq_data(city: str, limit: int=100):
 
     try:
         logging.info(f"Fetching data for city: {city}")
-        response = requests.get(API_BASE_URL, params=params, headers=headers)
+        response = requests.get(f"{API_BASE_URL}/measurements", params=params, headers=headers)
         response.raise_for_status()
         data = response.json()
 
