@@ -17,7 +17,12 @@ RAW_DATA_DIR = Path("../data/raw")
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def fetch_location_latest(location_id: int):
+    """
+    Calls the locations/location_id/latest OpenAQ API endpoint for a given location_id. Saves raw json data.
 
+    Args:
+        location_id (int): The location id as recognized by the OpenAQ API.
+    """
     headers = {
         "X-API-KEY": API_KEY
     }
