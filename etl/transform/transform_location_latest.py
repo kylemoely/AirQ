@@ -42,7 +42,7 @@ def transform_location_latest(filename: str):
     records = [
             {
                 "datetime":r["datetime"]["utc"],
-                "sensorId":r["sensorsId"],
+                "api_sensorid":r["sensorsId"],
                 "value":r["value"]
             } for r in data["results"]]
 
