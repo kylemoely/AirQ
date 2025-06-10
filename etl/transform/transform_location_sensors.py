@@ -27,7 +27,7 @@ def transform_location_sensors(filename: str):
 
     filename = Path(filename).name
     filepath = RAW_DATA_DIR / filename
-    clean_filepath = CLEAN_DATA_DIR / filename
+    clean_filepath = CLEAN_DATA_DIR / filename.replace(".json",".parquet")
     
     with open(filepath, "r") as f:
         data = json.load(f)
