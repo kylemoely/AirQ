@@ -1,0 +1,61 @@
+import json
+import pandas as pd
+from pathlib import Path
+import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
+
+RAW_DATA_DIR = Path("/home/ec2-user/data/raw")
+CLEAN_DATA_DIR = Path("/home/ec2-user/data/clean")
+
+def transform_location_sensors(filename: str):
+    """
+    Transforms raw json file containing sensor information for a certain location into parquet format.
+
+    Args:
+        filename (str): The filename of the raw data json file.
+
+    Raises:
+        ValueError: If the file is not .json, if the file does not contain the word 'sensors', or if the file contains no records in the results array.
+    """
+
+    if not filename.endswith(".json"):
+        raise ValueError(f"Expected json file. Got {filename}")
+    if not "location_sensors" in filename:
+        raise ValueError(f"Expected filename containing 'location_sensors'. Got {filename}")
+
+    filename = Path(filename).name
+    filepath = RAW_DATA_DIR / filename
+    clean_filepath = CLEAN_DATA_DIR / filename
+    
+    with open(filepath, "r") as f:
+        data = json.load(f)
+
+    if len(data.get('results', []))==0:
+        raise ValueError(f"No records present in {filename}.")
+
+    logging.info(f"Successfully loaded {filename}.")
+    
+    filename_parts = filename.split("_")
+    location_id = filename_parts[filename_parts.index("sensors")+1]
+    
+    records = [{
+            "api_sensorid": r["id"],
+            "api_locationid": location_id,
+            "api_parameterid": r["parameter"]["id"]
+            } for r in data["results"]]
+
+    df = pd.DataFrame(records)
+    df.to_parquet(clean_filepath, engine="pyarrow", index=False)
+    logging.info(f"Saved {len(records)} clean records to {clean_filepath}.")
+
+def main():
+    parser = argparse.ArgumentParser(description="Transorm raw sensor data to parquet format.")
+    parser.add_argument("--filename", required=True, help="Filename of json file containing data to be transformed.")
+    args = parser.parse_args()
+
+    transform_location_sensors(args.filename)
+
+if __name__ == "__main__":
+    main()
