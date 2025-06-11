@@ -18,21 +18,20 @@ CREATE TABLE IF NOT EXISTS locations (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	api_locationid INTEGER NOT NULL,
 	name TEXT,
-	city TEXT,
 	latitude DOUBLE PRECISION,
 	longitude DOUBLE PRECISION,
-	countryid UUID,
-	FOREIGN KEY (countryId) REFERENCES countries(id)
+	api_countryid UUID,
+	FOREIGN KEY (api_countryId) REFERENCES countries(api_countryid)
 	);
 
 CREATE TABLE IF NOT EXISTS sensors (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	api_sensorid INTEGER UNIQUE NOT NULL,
 	name TEXT,
-	locationid UUID,
-	parameterid UUID,
-	FOREIGN KEY (locationId) REFERENCES locations(id),
-	FOREIGN KEY (parameterId) REFERENCES parameters(id)
+	api_locationid UUID,
+	api_parameterid UUID,
+	FOREIGN KEY (api_locationId) REFERENCES locations(api_locationid),
+	FOREIGN KEY (api_parameterId) REFERENCES parameters(api_parameterid)
 	);
 
 CREATE TABLE IF NOT EXISTS measurements (
