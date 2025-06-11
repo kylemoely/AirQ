@@ -22,7 +22,7 @@ def transform_parameters(filename: str):
 
     if not filename.endswith(".json"):
         raise ValueError(f"Expected json file. Got {filename}")
-    if not filename.startswith("parameters"):
+    if not "parameters" in filename:
         raise ValueError(f"Expected filename to contain 'parameters'. Got {filename}")
 
     filename = Path(filename).name
