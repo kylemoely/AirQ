@@ -3,11 +3,18 @@ import pandas as pd
 from pathlib import Path
 import argparse
 import logging
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-RAW_DATA_DIR = Path("/home/ec2-user/data/raw")
-CLEAN_DATA_DIR = Path("/home/ec2-user/data/clean")
+DATA_DIR = Path(os.getenv("DATA_DIR"))
+RAW_DATA_DIR = DATA_DIR / "raw"
+RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+CLEAN_DATA_DIR = DATA_DIR / "clean"
+CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def transform_location_sensors(filename: str):
     """

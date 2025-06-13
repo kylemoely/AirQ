@@ -10,8 +10,8 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
-ROOT_DIR = Path("/home/ec2-user/AirQ")
-CLEAN_DATA_DIR = ROOT_DIR / "../data/clean"
+CLEAN_DATA_DIR = Path(os.getenv("DATA_DIR")) / "clean"
+CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_NAME")

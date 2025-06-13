@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(mes
 
 API_BASE_URL = os.getenv("OPENAQ_API_BASE")
 API_KEY = os.getenv("API_KEY")
-RAW_DATA_DIR = Path("../data/raw")
+RAW_DATA_DIR = Path(os.getenv("DATA_DIR")) / "raw"
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 def fetch_location_latest(location_id: int):
