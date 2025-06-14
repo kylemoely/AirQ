@@ -5,6 +5,7 @@ import logging
 import os
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
+from sqlalchemy.exc import SQLAlchemyError
 
 load_dotenv()
 
@@ -40,10 +41,15 @@ def load_parameters(filename: str):
     df = pd.read_parquet(filepath)
 
     engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
-
-    logging.info(f"Loading {len(df)} records into parameters.")
-    df.to_sql("parameters", engine, if_exists="append", index=False)
-    logging.info("Load complete.")
+    
+    try:
+        logging.info(f"Loading {len(df)} records into parameters.")
+        df.to_sql("parameters", engine, if_exists="append", index=False)
+        logging.info("Load complete.")
+    except SQLAlchemyError as e:
+        logging.error(f"Error writing to database: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error writing to sensors table: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Load clean parquet data into airq database.")
