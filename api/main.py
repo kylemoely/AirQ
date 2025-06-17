@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.routes import locations, countries, parameters
+from api.routes import locations, countries, parameters, sensors, measurements
 
 app = FastAPI(
         title="AirQ API",
@@ -8,5 +8,8 @@ app = FastAPI(
     )
 
 app.include_router(locations.router, prefix="/locations", tags=["Locations"])
-app.invlude_router(measurements.router, prefix="/measurements", tags=["Measurements"])
+app.include_router(measurements.router, prefix="/measurements", tags=["Measurements"])
+app.include_router(countries.router, prefix="/countries", tags=["Countries"])
+app.include_router(parameters.router, prefix="/parameters", tags=["Paramters"])
+app.include_router(sensors.router, prefix="/sensors", tags=["Sensors"])
 
