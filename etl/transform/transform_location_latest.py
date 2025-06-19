@@ -16,7 +16,7 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_location_latest(filename: str):
+def transform_location_latest(filename: str) -> Path:
     """
     Transforms raw json file containing latest sensor measurements into parquet format.
 
@@ -25,6 +25,9 @@ def transform_location_latest(filename: str):
 
     Raises:
         ValueError: If the file is not .json or the file contains no records in the results array.
+
+    Returns:
+        clean_filepath (Path): Path object that points to parquet data file.
     """
 
     if not filename.endswith(".json"):
@@ -55,6 +58,8 @@ def transform_location_latest(filename: str):
     df = pd.DataFrame(records)
     df.to_parquet(clean_filepath ,engine="pyarrow", index=False)
     logging.info(f"Saved {len(records)} clean records to {clean_filepath}.")
+
+    return clean_filepath
 
 def main():
     parser = argparse.ArgumentParser(description="Transform raw location data to parquet.")

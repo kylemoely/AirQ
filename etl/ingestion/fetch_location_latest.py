@@ -16,12 +16,15 @@ API_KEY = os.getenv("API_KEY")
 RAW_DATA_DIR = Path(os.getenv("DATA_DIR")) / "raw"
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def fetch_location_latest(location_id: int):
+def fetch_location_latest(location_id: int) -> Path:
     """
     Calls the locations/location_id/latest OpenAQ API endpoint for a given location_id. Saves raw json data.
 
     Args:
         location_id (int): The location id as recognized by the OpenAQ API.
+
+    Returns:
+        filepath (Path): Path object that points to saved json data.
     """
     headers = {
         "X-API-KEY": API_KEY
@@ -34,17 +37,19 @@ def fetch_location_latest(location_id: int):
         data = response.json()
 
         timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H%M%SZ")
-        filename = RAW_DATA_DIR / f"location_{location_id}_{timestamp}.json"
+        filepath = RAW_DATA_DIR / f"location_{location_id}_{timestamp}.json"
 
-        with open(filename, "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         
-        logging.info(f"Saved {len(data.get('results', []))} records to {filename}")
+        logging.info(f"Saved {len(data.get('results', []))} records to {filepath}")
 
     except requests.RequestException as e:
         logging.error(f"Error fetching data from OpenAQ: {e}")
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
+
+    return filepath
 
 def main():
     parser = argparse.ArgumentParser(description="Fetch OpenAQ data for a specified city.")

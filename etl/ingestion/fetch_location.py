@@ -16,12 +16,15 @@ API_BASE_URL = os.getenv("OPENAQ_API_BASE")
 RAW_DATA_DIR = Path(os.getenv("DATA_DIR")) / "raw"
 RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def fetch_location(location_id: int):
+def fetch_location(location_id: int) -> Path:
     """
     Calls the /locations/location_id endpoint of the OpenAQ API to get location information.
 
     Args:
         location_id (int): Location id as recognized by the OpenAQ API.
+
+    Returns:
+        filepath (Path): Path object that points to saved json data.
     """
 
     headers = {"X-API-KEY": API_KEY}
@@ -44,6 +47,8 @@ def fetch_location(location_id: int):
         logging.error(f"Error fetching data from OpenAQ: {e}")
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
+
+    return filepath
 
 def main():
     parser = argparse.ArgumentParser()

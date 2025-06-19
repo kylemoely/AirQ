@@ -16,7 +16,7 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_location(filename: str):
+def transform_location(filename: str) -> Path:
     """
     Transforms raw json file containing location information to parquet format.
 
@@ -25,6 +25,9 @@ def transform_location(filename: str):
 
     Raises:
         ValueError: If filename is not .json, filename does not contain 'location', or results array contains 0 records.
+
+    Returns:
+        clean_filepath (Path): Path object that points to saved parquet data.
     """
 
     if not filename.endswith(".json"):
@@ -53,6 +56,8 @@ def transform_location(filename: str):
     df = pd.DataFrame(records)
     df.to_parquet(clean_filepath, engine="pyarrow", index=False)
     logging.info(f"Saved {len(df)} clean records to {clean_filepath.name}")
+
+    return clean_filepath
 
 def main():
     parser = argparse.ArgumentParser()

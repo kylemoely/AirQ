@@ -16,7 +16,7 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_location_sensors(filename: str):
+def transform_location_sensors(filename: str) -> Path:
     """
     Transforms raw json file containing sensor information for a certain location into parquet format.
 
@@ -25,6 +25,9 @@ def transform_location_sensors(filename: str):
 
     Raises:
         ValueError: If the file is not .json, if the file does not contain the word 'sensors', or if the file contains no records in the results array.
+
+    Returns:
+        clean_filepath (Path): Path object that points to clean parquet file.
     """
 
     if not filename.endswith(".json"):
@@ -56,6 +59,8 @@ def transform_location_sensors(filename: str):
     df = pd.DataFrame(records)
     df.to_parquet(clean_filepath, engine="pyarrow", index=False)
     logging.info(f"Saved {len(records)} clean records to {clean_filepath}.")
+    
+    return clean_filepath
 
 def main():
     parser = argparse.ArgumentParser(description="Transorm raw sensor data to parquet format.")

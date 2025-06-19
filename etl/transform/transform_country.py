@@ -17,7 +17,7 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_country(filename: str):
+def transform_country(filename: str) -> Path:
     """
     Transforms the raw json file containing a country's information into parquet format.
 
@@ -26,6 +26,9 @@ def transform_country(filename: str):
 
     Raises:
         ValueError: If the file is not .json, does not contain the string 'country', or contains no records in the results array.
+
+    Returns:
+        clean_filepath (Path): Path object pointing to clean parquet file.
     """
 
     if not filename.endswith(".json"):
@@ -54,6 +57,8 @@ def transform_country(filename: str):
     df = pd.DataFrame(records)
     df.to_parquet(clean_filepath, engine="pyarrow", index=False)
     logging.info(f"Saved {len(records)} clean records to {clean_filepath.name}")
+
+    return clean_filepath
 
 def main():
     parser = argparse.ArgumentParser()
