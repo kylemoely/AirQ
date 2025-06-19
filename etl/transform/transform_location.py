@@ -16,12 +16,12 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_location(filename: str) -> Path:
+def transform_location(filename: Path) -> Path:
     """
     Transforms raw json file containing location information to parquet format.
 
     Args:
-        filename (str): Filename of the raw json data to be cleaned.
+        filename (Path): Path object that points to file of the raw json data to be cleaned.
 
     Raises:
         ValueError: If filename is not .json, filename does not contain 'location', or results array contains 0 records.
@@ -30,12 +30,12 @@ def transform_location(filename: str) -> Path:
         clean_filepath (Path): Path object that points to saved parquet data.
     """
 
-    if not filename.endswith(".json"):
+    if not filename.name.endswith(".json"):
         raise ValueError(f"Expected json file. Got {filename}")
-    if 'location' not in filename:
+    if 'location' not in filename.name:
         raise ValueError(f"Expected 'location' to be in filename. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = RAW_DATA_DIR / filename
     clean_filepath = CLEAN_DATA_DIR / filename.replace(".json", ".parquet")
 
@@ -63,8 +63,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", required=True, help="Filename of the raw json file containing location information.")
     args = parser.parse_args()
+    
+    filepath = Path(args.filename)
 
-    transform_location(args.filename)
+    transform_location(filepath)
 
 if __name__ == "__main__":
     main()

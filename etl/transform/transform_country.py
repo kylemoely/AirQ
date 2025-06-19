@@ -17,12 +17,12 @@ RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 CLEAN_DATA_DIR = DATA_DIR / "clean"
 CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def transform_country(filename: str) -> Path:
+def transform_country(filename: Path) -> Path:
     """
     Transforms the raw json file containing a country's information into parquet format.
 
     Args:
-        filename (str): The filename of the raw data json file.
+        filename (Path): Path object that points to the filename of the raw data json file.
 
     Raises:
         ValueError: If the file is not .json, does not contain the string 'country', or contains no records in the results array.
@@ -31,12 +31,12 @@ def transform_country(filename: str) -> Path:
         clean_filepath (Path): Path object pointing to clean parquet file.
     """
 
-    if not filename.endswith(".json"):
+    if not filename.name.endswith(".json"):
         raise ValueError(f"Expected .json file. Got {filename}")
-    if "country" not in filename:
+    if "country" not in filename.name:
         raise ValueError(f"Expected filename to contain 'country'. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = RAW_DATA_DIR / filename
     clean_filepath = CLEAN_DATA_DIR / filename.replace(".json",".parquet")
 
@@ -65,7 +65,9 @@ def main():
     parser.add_argument("--filename", required=True, help="Filename of the raw json file containing the country's information.")
     args = parser.parse_args()
 
-    transform_country(args.filename)
+    filepath = Path(args.filename)
+
+    transform_country(filepath)
 
 if __name__ == "__main__":
     main()

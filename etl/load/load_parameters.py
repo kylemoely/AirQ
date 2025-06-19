@@ -19,23 +19,23 @@ DB_NAME = os.getenv("DB_NAME")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
-def load_parameters(filename: str):
+def load_parameters(filename: Path):
     """
     Loads clean parquet parameter data into PostgreSQL parameters table.
 
     Args:
-        filename (str): File name of the clean parquet data.
+        filename (Path): Path object that points to the file name of the clean parquet data.
 
     Raises:
         ValueError: If file is not .parquet or 'parameters' is not in the filename.
     """
 
-    if not filename.endswith(".parquet"):
+    if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected parquet file. Got {filename}")
-    if not "parameters" in filename:
+    if not "parameters" in filename.name:
         raise ValueError(f"Expected filename to contain 'parameters'. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
@@ -56,7 +56,9 @@ def main():
     parser.add_argument("--filename", required=True, help="Clean parquet filename to load into parameters table.")
     args = parser.parse_args()
 
-    load_parameters(args.filename)
+    filepath = Path(args.filename)
+    
+    load_parameters(filepath)
 
 if __name__ == "__main__":
     main()

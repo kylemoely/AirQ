@@ -19,23 +19,23 @@ DB_NAME = os.getenv("DB_NAME")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
-def load_country(filename: str):
+def load_country(filename: Path):
     """
     Loads clean parquet data into countries db table.
 
     Args:
-        filename (str): Filename of the clean parquet data.
+        filename (Path): Path object that points to filename of the clean parquet data.
     
     Raises:
         ValueError: If file is not .parquet, parquet file is empty, or filename does not contain 'country'.
     """
 
-    if not filename.endswith(".parquet"):
+    if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected parquet file. Got {filename}")
-    if 'country' not in filename:
+    if 'country' not in filename.name:
         raise ValueError(f"Expected 'country' to be in filename. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
@@ -58,7 +58,9 @@ def main():
     parser.add_argument("--filename", required=True, help="Filename of parquet data to be uploaded to database.")
     args = parser.parse_args()
 
-    load_country(args.filename)
+    filepath = Path(args.filename)
+
+    load_country(filepath)
 
 if __name__ == "__main__":
     main()

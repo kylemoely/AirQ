@@ -19,23 +19,23 @@ DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
-def load_location_sensors(filename: str):
+def load_location_sensors(filename: Path):
     """
     Loads clean parquet data for a location's sensors into the sensors database table.
 
     Args:
-        filename (str): Filename of the parquet file containing sensor data.
+        filename (Path): Path object that points to the filename of the parquet file containing sensor data.
 
     Raises:
         ValueError: If filename is not .parquet or does not include the string 'location_sensors'.
     """
 
-    if not filename.endswith(".parquet"):
+    if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected .parquet file. Got {filename}")
-    if not 'location_sensors' in filename:
+    if not 'location_sensors' in filename.name:
         raise ValueError(f"Expected filename to contain 'location_sensors'. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
@@ -56,7 +56,9 @@ def main():
     parser.add_argument("--filename", required=True, help="Filename of parquet file containing sensor data to be uploaded.")
     args = parser.parse_args()
 
-    load_location_sensors(args.filename)
+    filepath = Path(args.filename)
+
+    load_location_sensors(filepath)
 
 if __name__ == "__main__":
     main()

@@ -19,23 +19,23 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
-def load_location(filename: str):
+def load_location(filename: Path):
     """
     Loads clean parquet data into db locations table."
 
     Args:
-        filename (str): Filename of the clean parquet file to be written to database.
+        filename (Path): Path object that points to filename of the clean parquet file to be written to database.
 
     Raises:
         ValueError: If filename is not .parquet, no records are present in the file, or 'location' is not in the filename.
     """
 
-    if not filename.endswith(".parquet"):
+    if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected .parquet file. Got {filename}")
-    if not 'location' in filename:
+    if not 'location' in filename.name:
         raise ValueError(f"Expected filename to contain 'location'. Got {filename}")
 
-    filename = Path(filename).name
+    filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
@@ -58,8 +58,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--filename", required=True, help="Filename of the parquet file containing location information to be written to database.")
     args = parser.parse_args()
+    
+    filepath = Path(args.filename)
 
-    load_location(args.filename)
+    load_location(filepath)
 
 if __name__ == "__main__":
     main()

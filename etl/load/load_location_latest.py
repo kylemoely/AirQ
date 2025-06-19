@@ -19,23 +19,19 @@ DB_NAME = os.getenv("DB_NAME")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
-def load_location_latest(filename: str):
+def load_location_latest(filename: Path):
     """
     Loads clean parquet data into PostgreSQL measurements table.
 
     Args:
-        filename (str): The filename of the clean parquet data.
+        filename (Path): Path object that points to the filename of the clean parquet data.
     """
 
-    if not filename.endswith(".parquet"):
+    if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected parquet file. Got {filename}")
 
-    # Check if absolute file path was passed and fix accordingly
-    filepath = Path(filename)
-    if filepath.is_absolute() or filepath.parts[:len(CLEAN_DATA_DIR.parts)] == CLEAN_DATA_DIR.parts:
-        filepath = filepath.relative_to(CLEAN_DATA_DIR)
-
-    filepath = CLEAN_DATA_DIR / filepath
+    filename = filename.name
+    filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
 
@@ -55,7 +51,9 @@ def main():
     parser.add_argument("--filename", required=True, help="Clean parquet filename to load into measurements table.")
     args = parser.parse_args()
 
-    load_location_latest(args.filename)
+    filepath = Path(args.filename)
+
+    load_location_latest(filepath)
 
 if __name__ == "__main__":
     main()
