@@ -1,30 +1,26 @@
 import argparse
 import pandas as pd
-from sqlalchemy import create_engine
 from pathlib import Path
 from dotenv import load_dotenv
 import os
 import logging
 from sqlalchemy.exc import SQLAlchemyError
+from db.db import get_db
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 CLEAN_DATA_DIR = Path(os.getenv("DATA_DIR")) / "clean"
-CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
 
-def load_country(filename: Path):
+def load_country(filename: Path, db: Session):
     """
     Loads clean parquet data into countries db table.
 
     Args:
         filename (Path): Path object that points to filename of the clean parquet data.
+        db (Session): SQLAlchemy session object connected to airq database.
     
     Raises:
         ValueError: If file is not .parquet, parquet file is empty, or filename does not contain 'country'.
@@ -43,7 +39,7 @@ def load_country(filename: Path):
     if len(df)==0 or list(df.columns) != ["api_countryid","name"]:
         raise ValueError(f"Improper dataframe from {filename}")
 
-    engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    engine = db.get_bind()
     try:
         logging.info(f"Loading {len(df)} records into countries table.")
         df.to_sql("countries", engine, if_exists="append", index=False)
@@ -59,8 +55,12 @@ def main():
     args = parser.parse_args()
 
     filepath = Path(args.filename)
-
-    load_country(filepath)
+    
+    db = next(get_db())
+    try:
+        load_country(filepath, db)
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     main()

@@ -1,30 +1,26 @@
 from pathlib import Path
 import logging
 import argparse
-from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from db.db import get_db
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 CLEAN_DATA_DIR = Path(os.getenv("DATA_DIR")) / "clean"
-CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
 
-def load_location(filename: Path):
+def load_location(filename: Path, db: Session):
     """
     Loads clean parquet data into db locations table."
 
     Args:
         filename (Path): Path object that points to filename of the clean parquet file to be written to database.
+        db (Session): SQLAlchemy database session.
 
     Raises:
         ValueError: If filename is not .parquet, no records are present in the file, or 'location' is not in the filename.
@@ -43,7 +39,7 @@ def load_location(filename: Path):
     if len(df)==0 or list(df.columns)!=["api_locationid","name","latitude","longitude","api_countryid"]:
         raise ValueError("Improper dataframe in parquet file.")
 
-    engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    engine = db.get_bind()
 
     try:
         logging.info(f"Loading {len(df)} records into locations table.")
@@ -60,8 +56,11 @@ def main():
     args = parser.parse_args()
     
     filepath = Path(args.filename)
-
-    load_location(filepath)
+    db = next(get_db())
+    try:
+        load_location(filepath, db)
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     main()

@@ -3,28 +3,24 @@ from pathlib import Path
 import argparse
 import logging
 import os
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
 from sqlalchemy.exc import SQLAlchemyError
+from db.db import get_db
+from sqlalchemy.orm import Session
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 CLEAN_DATA_DIR = Path(os.getenv("DATA_DIR")) / "clean"
-CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
 
-def load_parameters(filename: Path):
+def load_parameters(filename: Path, db: Session):
     """
     Loads clean parquet parameter data into PostgreSQL parameters table.
 
     Args:
         filename (Path): Path object that points to the file name of the clean parquet data.
+        db (Session): SQLAlchemy session object.
 
     Raises:
         ValueError: If file is not .parquet or 'parameters' is not in the filename.
@@ -39,8 +35,8 @@ def load_parameters(filename: Path):
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
-
-    engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    
+    engine = db.get_bind()
     
     try:
         logging.info(f"Loading {len(df)} records into parameters.")
@@ -58,7 +54,12 @@ def main():
 
     filepath = Path(args.filename)
     
-    load_parameters(filepath)
+    db = next(get_db())
+    
+    try:
+        load_parameters(filepath, db)
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     main()

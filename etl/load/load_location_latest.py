@@ -3,28 +3,24 @@ from pathlib import Path
 import argparse
 import logging
 import os
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+from db.db import get_db
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 CLEAN_DATA_DIR = Path(os.getenv("DATA_DIR")) / "clean"
-CLEAN_DATA_DIR.mkdir(parents=True, exist_ok=True)
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_NAME = os.getenv("DB_NAME")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
 
-def load_location_latest(filename: Path):
+def load_location_latest(filename: Path, db: Session):
     """
     Loads clean parquet data into PostgreSQL measurements table.
 
     Args:
         filename (Path): Path object that points to the filename of the clean parquet data.
+        db (Session): SQLAlchemy session object
     """
 
     if not filename.name.endswith(".parquet"):
@@ -33,9 +29,12 @@ def load_location_latest(filename: Path):
     filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
 
+    if not filepath.exists():
+        raise FileNotFoundError(f"{filepath} does not exist")
+
     df = pd.read_parquet(filepath)
 
-    engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    engine = db.get_bind()
     
     try:
         logging.info(f"Loading {len(df)} records into measurements.")
@@ -52,8 +51,11 @@ def main():
     args = parser.parse_args()
 
     filepath = Path(args.filename)
-
-    load_location_latest(filepath)
+    db = next(get_db())
+    try:
+        load_location_latest(filepath, db)
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     main()
