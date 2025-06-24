@@ -5,6 +5,7 @@ from db.db import get_db
 from etl.ingestion.fetch_location import fetch_location
 from etl.transform.transform_location import transform_location
 from etl.load.load_location import load_location
+from pipelines.add_location_sensors import add_location_sensors
 import logging
 
 load_dotenv()
@@ -18,21 +19,16 @@ def add_new_location(location_id: int):
     try:
         logging.info(f"Fetching data for location {location_id}")
         raw_filepath = fetch_location(location_id)
-    except Exception as e:
-        logging.exception(f"Error while fetching data from OpenAQ API")
 
-    try:
         clean_filepath = transform_location(raw_filepath)
-    except Exception as e:
-        logging.exception(f"Error while transforming data from {raw_filepath}")
 
-    try:
         load_location(clean_filepath, db)
         logging.info(f"Successfully added location {location_id} to database.")
+        add_location_sensors(location_id)
     except Exception as e:
-        logging.exception(f"Error while insert data into database for {location_id} from {clean_filepath}")
-
-    db.close()
+        logging.exception(f"Error while adding location {location_id}")
+    finally:
+        db.close()
 
 def main():
     parser = argparse.ArgumentParser()
