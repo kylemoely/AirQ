@@ -32,7 +32,7 @@ def add_new_country(country_id: int):
         load_country(clean_filepath, db)
         logging.info(f"Country {country_id} successfully added to database.")
     except Exception as e:
-        logging.exception(f"Error while inserting data into database for country {country_id}")
+        logging.exception(f"Error while inserting data into database for country {country_id} from {clean_filepath}")
 
     db.close()
 
