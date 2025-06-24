@@ -50,7 +50,7 @@ def transform_country(filename: Path) -> Path:
 
     records = [
             {
-                "api_countryid": r["id"],
+                "id": r["id"],
                 "name": r["name"]
                 } for r in data["results"]
             ]

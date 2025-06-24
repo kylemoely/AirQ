@@ -21,10 +21,15 @@ def load_location_latest(filename: Path, db: Session):
     Args:
         filename (Path): Path object that points to the filename of the clean parquet data.
         db (Session): SQLAlchemy session object
+
+    Raises:
+        ValueError: If file is not .parquet, parquet file is empty or contains improper columns, or filename does not contain 'location_latest'. 
     """
 
     if not filename.name.endswith(".parquet"):
         raise ValueError(f"Expected parquet file. Got {filename}")
+    if "location_latest" not in filename.name:
+        raise ValueError(f"Expected filename to contain 'location_latest'. Got {filename}")
 
     filename = filename.name
     filepath = CLEAN_DATA_DIR / filename
@@ -33,6 +38,9 @@ def load_location_latest(filename: Path, db: Session):
         raise FileNotFoundError(f"{filepath} does not exist")
 
     df = pd.read_parquet(filepath)
+    
+    if len(df)==0 or list(df.columns)!=["datetime", "sensor_id", "value"]:
+        raise ValueError(f"Improper dataframe from {filename}")
 
     engine = db.get_bind()
     

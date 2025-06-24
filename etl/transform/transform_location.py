@@ -46,11 +46,11 @@ def transform_location(filename: Path) -> Path:
         raise ValueError(f"No records found in {filename}")
 
     records = [{
-        "api_locationid": r["id"],
+        "id": r["id"],
         "name": r["name"],
         "latitude": r["coordinates"]["latitude"],
         "longitude": r["coordinates"]["longitude"],
-        "api_countryid": r["country"]["id"]
+        "country_id": r["country"]["id"]
         } for r in data["results"]]
 
     df = pd.DataFrame(records)

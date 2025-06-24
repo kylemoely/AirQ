@@ -23,7 +23,7 @@ def load_country(filename: Path, db: Session):
         db (Session): SQLAlchemy session object connected to airq database.
     
     Raises:
-        ValueError: If file is not .parquet, parquet file is empty, or filename does not contain 'country'.
+        ValueError: If file is not .parquet, parquet file is empty or contains improper column names, or filename does not contain 'country'.
     """
 
     if not filename.name.endswith(".parquet"):
@@ -36,7 +36,7 @@ def load_country(filename: Path, db: Session):
 
     df = pd.read_parquet(filepath)
     
-    if len(df)==0 or list(df.columns) != ["api_countryid","name"]:
+    if len(df)==0 or list(df.columns) != ["id","name"]:
         raise ValueError(f"Improper dataframe from {filename}")
 
     engine = db.get_bind()

@@ -46,14 +46,15 @@ def transform_location_sensors(filename: Path) -> Path:
         raise ValueError(f"No records present in {filename}.")
 
     logging.info(f"Successfully loaded {filename}.")
-    
+
+    # Below extracts the location_id from the filename to be input into the database 
     filename_parts = filename.split("_")
     location_id = filename_parts[filename_parts.index("sensors")+1]
     
     records = [{
-            "api_sensorid": r["id"],
-            "api_locationid": location_id,
-            "api_parameterid": r["parameter"]["id"]
+            "id": r["id"],
+            "location_id": location_id,
+            "parameter_id": r["parameter"]["id"]
             } for r in data["results"]]
 
     df = pd.DataFrame(records)

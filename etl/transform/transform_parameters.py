@@ -49,7 +49,7 @@ def transform_parameters(filename: Path) -> Path:
 
     records = [
             {
-                "api_parameterid": r["id"],
+                "id": r["id"],
                 "units": r["units"],
                 "name": r["displayName"],
                 "description": r["description"]

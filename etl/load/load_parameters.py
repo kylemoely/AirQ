@@ -23,7 +23,7 @@ def load_parameters(filename: Path, db: Session):
         db (Session): SQLAlchemy session object.
 
     Raises:
-        ValueError: If file is not .parquet or 'parameters' is not in the filename.
+        ValueError: If file is not .parquet, parquet file is empty or contains improper column names, or 'parameters' is not in the filename.
     """
 
     if not filename.name.endswith(".parquet"):
@@ -35,6 +35,9 @@ def load_parameters(filename: Path, db: Session):
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
+
+    if len(df)==0 or list(df.columns)!= ["id", "units", "name", "description"]:
+        raise ValueError(f"Improper dataframe from {filename}")
     
     engine = db.get_bind()
     

@@ -23,7 +23,7 @@ def load_location_sensors(filename: Path, db: Session):
         db (Session): SQLAlchemy session object connected to airq database.
 
     Raises:
-        ValueError: If filename is not .parquet or does not include the string 'location_sensors'.
+        ValueError: If filename is not .parquet, parquet file is empty or contains improper columns, or does not include the string 'location_sensors'.
     """
 
     if not filename.name.endswith(".parquet"):
@@ -35,6 +35,9 @@ def load_location_sensors(filename: Path, db: Session):
     filepath = CLEAN_DATA_DIR / filename
 
     df = pd.read_parquet(filepath)
+    
+    if len(df)==0 or list(df.columns)!=["id","location_id","parameter_id"]:
+        raise ValueError(f"Improper dataframe from {filename}")
 
     engine = db.get_bind()
     

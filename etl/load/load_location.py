@@ -36,7 +36,7 @@ def load_location(filename: Path, db: Session):
 
     df = pd.read_parquet(filepath)
     
-    if len(df)==0 or list(df.columns)!=["api_locationid","name","latitude","longitude","api_countryid"]:
+    if len(df)==0 or list(df.columns)!=["id","name","latitude","longitude","country_id"]:
         raise ValueError("Improper dataframe in parquet file.")
 
     engine = db.get_bind()

@@ -24,7 +24,7 @@ def transform_location_latest(filename: Path) -> Path:
         filename (Path): Path object pointing to the filename of the raw data json file.
 
     Raises:
-        ValueError: If the file is not .json or the file contains no records in the results array.
+        ValueError: If the file is not .json, filename does not contain 'location_latest', or the file contains no records in the results array.
 
     Returns:
         clean_filepath (Path): Path object that points to parquet data file.
@@ -32,6 +32,8 @@ def transform_location_latest(filename: Path) -> Path:
 
     if not filename.name.endswith(".json"):
         raise ValueError(f"Expected json file. Got {filename}")
+    if "location_latest" not in filename.name:
+        raise ValueError(f"Expected filename to contain 'location_latest'. Got {filename}")
 
     filename = filename.name
     filepath = RAW_DATA_DIR / filename
@@ -47,7 +49,7 @@ def transform_location_latest(filename: Path) -> Path:
     records = [
             {
                 "datetime":r["datetime"]["utc"],
-                "api_sensorid":r["sensorsId"],
+                "sensor_id":r["sensorsId"],
                 "value":r["value"]
             } for r in data["results"]]
 
