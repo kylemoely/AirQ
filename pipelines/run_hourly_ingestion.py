@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 import os
 from sqlalchemy import select
 from etl.ingestion.fetch_location_latest import fetch_location_latest
@@ -12,10 +11,6 @@ from db import models
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
-
-DATA_DIR = Path(os.getenv("DATA_DIR"))
-CLEAN_DATA_DIR = DATA_DIR / "clean"
-RAW_DATA_DIR = DATA_DIR / "raw"
 
 def run_ingestion():
     logging.info("Ingesting hourly location measurements.")
