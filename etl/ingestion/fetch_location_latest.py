@@ -37,7 +37,7 @@ def fetch_location_latest(location_id: int) -> Path:
         data = response.json()
 
         timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H%M%SZ")
-        filepath = RAW_DATA_DIR / f"location_{location_id}_{timestamp}.json"
+        filepath = RAW_DATA_DIR / f"location_latest_{location_id}_{timestamp}.json"
 
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
