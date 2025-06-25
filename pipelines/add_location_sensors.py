@@ -16,14 +16,11 @@ def add_location_sensors(location_id: int):
     db = next(get_db())
 
     try:
-        logging.info(f"Fetching sensor data for location {location_id}")
         raw_filepath = fetch_location_sensors(location_id)
 
         clean_filepath = transform_location_sensors(raw_filepath)
 
         load_location_sensors(clean_filepath, db)
-
-        logging.info(f"Successfully added sensor data for location {location_id}")
 
     except Exception:
         logging.exception(f"Error while adding sensor data for location {location_id}")

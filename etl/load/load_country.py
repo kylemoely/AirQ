@@ -38,12 +38,13 @@ def load_country(filename: Path, db: Session):
     
     if len(df)==0 or list(df.columns) != ["id","name"]:
         raise ValueError(f"Improper dataframe from {filename}")
+    country_id = int(df.loc[0].id)
 
     engine = db.get_bind()
     try:
         logging.info(f"Loading {len(df)} records into countries table.")
         df.to_sql("countries", engine, if_exists="append", index=False)
-        logging.info("Load complete.")
+        logging.info("Succesfully loaded data for country {country_id} into database.")
     except SQLAlchemyError as e:
         logging.error(f"Error writing to database: {e}")
     except Exception as e:

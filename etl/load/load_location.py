@@ -38,13 +38,13 @@ def load_location(filename: Path, db: Session):
     
     if len(df)==0 or list(df.columns)!=["id","name","latitude","longitude","country_id"]:
         raise ValueError("Improper dataframe in parquet file.")
-
+    location_id = int(df.loc[0].id)
     engine = db.get_bind()
 
     try:
         logging.info(f"Loading {len(df)} records into locations table.")
         df.to_sql("locations", engine, if_exists="append", index=False)
-        logging.info("Load complete.")
+        logging.info("Succesfully added location {location_id} to database.")
     except SQLAlchemyError as e:
         logging.error(f"Error writing to database: {e}")
     except Exception as e:

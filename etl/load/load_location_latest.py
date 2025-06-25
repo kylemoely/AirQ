@@ -41,13 +41,14 @@ def load_location_latest(filename: Path, db: Session):
     
     if len(df)==0 or list(df.columns)!=["datetime", "sensor_id", "value"]:
         raise ValueError(f"Improper dataframe from {filename}")
-
+    file_split = filename.split("_")
+    location_id = file_split[file_split.index("latest")+1]
     engine = db.get_bind()
     
     try:
         logging.info(f"Loading {len(df)} records into measurements.")
         df.to_sql("measurements", engine, if_exists="append", index=False)
-        logging.info("Load complete.")
+        logging.info("Succesfully updated measurements for location {location_id}.")
     except SQLAlchemyError as e:
         logging.error(f"Error writing to database: {e}")
     except Exception as e:

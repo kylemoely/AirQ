@@ -40,11 +40,12 @@ def load_location_sensors(filename: Path, db: Session):
         raise ValueError(f"Improper dataframe from {filename}")
 
     engine = db.get_bind()
-    
+    location_id = int(df.loc[0].location_id)
+
     try:
         logging.info(f"Loading {len(df)} records into sensors table.")
         df.to_sql("sensors", engine, if_exists="append", index=False)
-        logging.info("Load complete.")
+        logging.info("Successfully loaded sensor data into database for location {location_id}.")
     except SQLAlchemyError as e:
         logging.error(f"Error writing to database: {e}")
     except Exception as e:

@@ -22,9 +22,7 @@ def run_ingestion():
         logging.info(f"Found {len(locations)} locations to fetch.")
 
         for location in locations:
-            print(location.id)
             location_id = location.id
-            logging.info(f"Processing location {location_id}: {location.name}")
 
             raw_filepath = fetch_location_latest(location_id)
             try:
@@ -37,7 +35,6 @@ def run_ingestion():
             except Exception as e:
                 logging.error(f"Error while inserting into database data for location {location_id}. Skipping location.")
                 continue
-            logging.info(f"Measurements for location {location_id} successfully updated.")
     except Exception as e:
         logging.exception(f"Unexpected error during hourly ingestion. Discontinuing.")
     finally:

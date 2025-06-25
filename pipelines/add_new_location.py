@@ -17,13 +17,11 @@ def add_new_location(location_id: int):
     db = next(get_db())
 
     try:
-        logging.info(f"Fetching data for location {location_id}")
         raw_filepath = fetch_location(location_id)
 
         clean_filepath = transform_location(raw_filepath)
 
         load_location(clean_filepath, db)
-        logging.info(f"Successfully added location {location_id} to database.")
         add_location_sensors(location_id)
     except Exception as e:
         logging.exception(f"Error while adding location {location_id}")

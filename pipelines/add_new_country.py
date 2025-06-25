@@ -17,8 +17,6 @@ def add_new_country(country_id: int):
     db = next(get_db())
 
     try:
-        logging.info(f"Fetching country information for country {country_id}")
-
         raw_filepath = fetch_country(country_id)
     except Exception as e:
         logging.exception(f"Error while fetching data from OpenAQ API")
@@ -30,7 +28,6 @@ def add_new_country(country_id: int):
 
     try:
         load_country(clean_filepath, db)
-        logging.info(f"Country {country_id} successfully added to database.")
     except Exception as e:
         logging.exception(f"Error while inserting data into database for country {country_id} from {clean_filepath}")
 
