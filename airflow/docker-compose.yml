@@ -46,27 +46,8 @@ services:
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     volumes:
       - ./dags:/opt/airflow/dags
+      - ../.env:/opt/airflow/.env
     command: scheduler
-
-  hourly_ingestion:
-    build:
-      context: ../
-      dockerfile: pipelines/run_hourly_ingestion/Dockerfile
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - ../.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-    volumes:
-      - ../etl:/usr/local/app/etl
-      - ../db:/usr/local/app/db
-      - ../pipelines/run_hourly_ingestion:/usr/local/app
 
 volumes:
   postgres_db:
