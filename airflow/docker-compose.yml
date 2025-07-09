@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:14
     container_name: postgres
+    env_file:
+      - ../.env
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -9,6 +11,12 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_db:/var/lib/postgres/data
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "${DB_PORT}:${DB_PORT}"
 
@@ -39,6 +47,26 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
     command: scheduler
+
+  hourly_ingestion:
+    build:
+      context: ../
+      dockerfile: pipelines/run_hourly_ingestion/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - ../etl:/usr/local/app/etl
+      - ../db:/usr/local/app/db
+      - ../pipelines/run_hourly_ingestion:/usr/local/app
 
 volumes:
   postgres_db:
